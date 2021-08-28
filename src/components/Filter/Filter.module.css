@@ -1,0 +1,23 @@
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter {
+  align-self: flex-start;
+  padding: 5px 10px 5px 10px;
+  margin-bottom: 20px;
+  min-width: 250px;
+
+  border: 1px solid black;
+}
+
+.filter:hover,
+.filter:focus {
+  outline: none;
+  box-shadow: -1px 0px 2px 0px blue;
+}
+
+.label {
+  margin-bottom: 5px;
+}
