@@ -1,4 +1,5 @@
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { checkIfSmthInPhonebook } from './redux/contacts/contacts-selectors';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Section from './components/Section/Section';
@@ -6,11 +7,14 @@ import Form from './components/Form/Form';
 import Filter from './components/Filter/Filter';
 import ContactList from './components/ContactList/ContactList';
 
-const App = ({ isSmthInPhonebook }) => {
+const App = () => {
+  const isSmthInPhonebook = useSelector(checkIfSmthInPhonebook);
+
   return (
     <>
       <Section>
         <h1>Phonebook</h1>
+
         <Form />
       </Section>
 
@@ -32,8 +36,4 @@ const App = ({ isSmthInPhonebook }) => {
   );
 };
 
-const mapStateToProps = state => ({
-  isSmthInPhonebook: Boolean(state.contacts.items.length),
-});
-
-export default connect(mapStateToProps)(App);
+export default App;

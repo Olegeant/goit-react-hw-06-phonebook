@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { toast } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../../redux/contacts/contacts-actions';
-import PropTypes from 'prop-types';
+import { getContacts } from '../../redux/contacts/contacts-selectors';
+import { toast } from 'react-toastify';
+import { ReactComponent as PersonIcon } from '../../images/person.svg';
+import { ReactComponent as PhoneIcon } from '../../images/phone.svg';
+import { ReactComponent as AddIcon } from '../../images/add-plus.svg';
 import styles from './Form.module.css';
 
-const Form = ({ contacts, onFormSubmit }) => {
+const Form = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const contacts = useSelector(getContacts);
+  const dispatch = useDispatch();
 
   const pattern = {
     name: "^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$",
@@ -44,11 +50,10 @@ const Form = ({ contacts, onFormSubmit }) => {
         contact => contact.name.toLowerCase() === name.toLowerCase(),
       )
     ) {
-      toast.error(`"${name}" is already in contacts!`);
-      return;
+      return toast.error(`"${name}" is already in contacts!`);
     }
 
-    onFormSubmit({ name, number });
+    dispatch(actions.addContact({ name, number }));
 
     resetForm();
   };
@@ -58,60 +63,63 @@ const Form = ({ contacts, onFormSubmit }) => {
     setNumber('');
   };
 
-  const makeFieldClass = (value, type) => {
+  const makeLabelClass = (value, type) => {
     return [
-      styles.field,
+      styles.label,
       ...(isStringValid(value, pattern[type]) ? [] : [styles.invalid]),
+    ].join(' ');
+  };
+
+  const makeSubmitBtnClass = () => {
+    return [
+      styles.submit,
+      ...(name &&
+      number &&
+      isStringValid(name, pattern.name) &&
+      isStringValid(number, pattern.number)
+        ? []
+        : [styles.invalid]),
     ].join(' ');
   };
 
   return (
     <form autoComplete="off" className={styles.form} onSubmit={handleSubmit}>
-      <label htmlFor="name" className={styles.label}>
+      <label htmlFor="name" className={makeLabelClass(name, 'name')}>
         Name
+        <PersonIcon className={styles.FieldIcon} width={20} height={20} />
+        <input
+          type="text"
+          name="name"
+          value={name}
+          className={styles.field}
+          onChange={handleInputChange}
+          pattern={pattern.name}
+          title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
+          required
+        />
       </label>
-      <input
-        type="text"
-        name="name"
-        value={name}
-        className={makeFieldClass(name, 'name')}
-        onChange={handleInputChange}
-        pattern={pattern.name}
-        title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
-        required
-      />
 
-      <label htmlFor="number" className={styles.label}>
+      <label htmlFor="number" className={makeLabelClass(number, 'number')}>
         Number
+        <PhoneIcon className={styles.FieldIcon} width={20} height={20} />
+        <input
+          type="tel"
+          name="number"
+          value={number}
+          className={styles.field}
+          onChange={handleInputChange}
+          pattern={pattern.number}
+          title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
+          required
+        />
       </label>
-      <input
-        type="tel"
-        name="number"
-        value={number}
-        className={makeFieldClass(number, 'number')}
-        onChange={handleInputChange}
-        pattern={pattern.number}
-        title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
-        required
-      />
 
-      <button type="submit" className={styles.submit}>
+      <button type="submit" className={makeSubmitBtnClass()}>
+        <AddIcon className={styles.AddIcon} width={16} height={16} />
         Add Contact
       </button>
     </form>
   );
 };
 
-Form.propTypes = {
-  onFormSubmit: PropTypes.func.isRequired,
-};
-
-const mapStateToProps = state => ({
-  contacts: state.contacts.items,
-});
-
-const mapDispatchToProps = dispatch => ({
-  onFormSubmit: contact => dispatch(actions.addContact(contact)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Form);
+export default Form;

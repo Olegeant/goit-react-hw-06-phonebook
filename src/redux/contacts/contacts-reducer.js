@@ -1,31 +1,16 @@
+import { createReducer } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import actionTypes from './contacts-types';
+import * as actions from './contacts-actions';
 
-const getStateFromLocalStorage = () =>
-  JSON.parse(window.localStorage.getItem('contacts')) ?? [];
+const items = createReducer([], {
+  [actions.addContact]: (state, { payload }) => [...state, payload],
+  [actions.deleteContact]: (state, { payload }) =>
+    state.filter(({ id }) => id !== payload),
+});
 
-const items = (state = getStateFromLocalStorage(), { type, payload }) => {
-  switch (type) {
-    case actionTypes.ADD_CONTACT:
-      return [...state, payload];
-
-    case actionTypes.DELETE_CONTACT:
-      return state.filter(({ id }) => id !== payload);
-
-    default:
-      return state;
-  }
-};
-
-const filter = (state = '', { type, payload }) => {
-  switch (type) {
-    case actionTypes.SET_CONTACT_FILTER:
-      return payload;
-
-    default:
-      return state;
-  }
-};
+const filter = createReducer('', {
+  [actions.setFilter]: (_, { payload }) => payload,
+});
 
 const contactsReducer = combineReducers({
   items,
